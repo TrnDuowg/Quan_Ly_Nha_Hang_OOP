@@ -1,10 +1,10 @@
-# 🍽️ Hệ Thống Quản Lý Nhà Hàng (Restaurant Management System)
+#  Hệ Thống Quản Lý Nhà Hàng (Restaurant Management System)
 
 > Bài tập lớn môn Lập trình Hướng đối tượng (OOP)
 > 
 > **Công nghệ:** C# WPF - MVVM - SQL Server
 
-## 📖 Giới thiệu
+##  Giới thiệu
 Phần mềm quản lý vận hành nhà hàng toàn diện, hỗ trợ quy trình từ đặt bàn, gọi món, thanh toán đến quản lý nhân sự và báo cáo doanh thu. Dự án được xây dựng dựa trên kiến trúc **MVVM (Model-View-ViewModel)** giúp tách biệt giao diện và xử lý logic, đồng thời áp dụng triệt để các nguyên lý **OOP** và các **Mẫu thiết kế (Design Patterns)**.
 
 ---
@@ -37,7 +37,7 @@ Phần mềm quản lý vận hành nhà hàng toàn diện, hỗ trợ quy trì
 
 ---
 
-## 🛠️ Công nghệ & Kỹ thuật
+##  Công nghệ & Kỹ thuật
 
 ### Tech Stack
 *   **Language:** C# (.NET 6.0 / .NET 8.0)
