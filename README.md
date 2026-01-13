@@ -27,7 +27,7 @@ Phần mềm quản lý vận hành nhà hàng toàn diện, hỗ trợ quy trì
 *   **Đặt bàn (Reservation):** Đặt chỗ trước cho khách, tự động đổi trạng thái bàn.
 *   **Gọi món (Ordering):** Thêm món, tìm kiếm món ăn, bớt món/hủy món (qua menu chuột phải).
 *   **Chuyển bàn:** Hỗ trợ khách đổi chỗ ngồi, chuyển toàn bộ đơn hàng sang bàn mới.
-*   **Thanh toán:** Tính tổng tiền, áp dụng mã giảm giá, **In hóa đơn** tự động ra file text.
+*   **Thanh toán:** Tính tổng tiền, áp dụng mã giảm giá.
 
 ### 3. Quản lý (Admin)
 *   **Quản lý Thực đơn:** Thêm/Sửa/Xóa món ăn, danh mục.
