@@ -4,7 +4,7 @@
 > 
 > **Công nghệ:** C# WPF - MVVM - SQL Server
 
-## 1. Thông tin nhóm sinh viên
+# Thông tin nhóm sinh viên
 
 | STT | Họ và tên | Mã sinh viên |
 |:---:|---|:---:|
