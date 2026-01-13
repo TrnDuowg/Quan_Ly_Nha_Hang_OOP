@@ -16,10 +16,10 @@ Phần mềm quản lý vận hành nhà hàng toàn diện, hỗ trợ quy trì
 
 ---
 
-## 🚀 Tính năng Chính
+##  Tính năng Chính
 
 ### 1. Hệ thống & Bảo mật
-*   **Đăng nhập/Đăng xuất:** Bảo mật với mật khẩu mã hóa **MD5**.
+*   **Đăng nhập/Đăng xuất:** Bảo mật với mật khẩu.
 *   **Phân quyền (RBAC):**
     *   **Admin:** Toàn quyền hệ thống.
     *   **Staff:** Chỉ truy cập các chức năng bán hàng.
