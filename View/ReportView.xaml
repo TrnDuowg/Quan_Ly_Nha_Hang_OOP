@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="QuanLyNhaHang.View.ReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề -->
+        <TextBlock Text="BÁO CÁO DOANH THU" FontSize="24" FontWeight="Bold" Margin="20" Foreground="#673AB7"/>
+
+        <!-- Bộ lọc -->
+        <materialDesign:Card Grid.Row="0" Margin="20,60,20,10" Padding="15" UniformCornerRadius="5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <DatePicker Width="150" materialDesign:HintAssist.Hint="Từ ngày" 
+                            SelectedDate="{Binding FromDate}" 
+                            Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="10"/>
+
+                <DatePicker Width="150" materialDesign:HintAssist.Hint="Đến ngày" 
+                            SelectedDate="{Binding ToDate}" 
+                            Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="10"/>
+
+                <Button Content="THỐNG KÊ" Command="{Binding ViewCommand}" Margin="20,0,0,0" Width="120"/>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- Danh sách hóa đơn -->
+        <!-- ĐÃ SỬA: Thêm SelectedItem và InputBindings -->
+        <DataGrid Grid.Row="1" Margin="20,10" 
+                  ItemsSource="{Binding ListBill}" 
+                  SelectedItem="{Binding SelectedBill}"
+                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                  HeadersVisibility="All" SelectionMode="Single">
+
+            <!-- Bắt sự kiện Double Click -->
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClickCommand}" />
+            </DataGrid.InputBindings>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Mã HĐ" Binding="{Binding Id}" Width="80"/>
+                <DataGridTextColumn Header="Tên Bàn" Binding="{Binding TableName}" Width="150"/>
+                <DataGridTextColumn Header="Ngày thanh toán" Binding="{Binding DateCheckOut, StringFormat=dd/MM/yyyy HH:mm}" Width="200"/>
+                <DataGridTextColumn Header="Giảm giá" Binding="{Binding Discount, StringFormat={}{0:N0}}" Width="150"/>
+                <DataGridTextColumn Header="Tổng tiền" Binding="{Binding TotalPrice, StringFormat={}{0:N0}}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Tổng kết -->
+        <materialDesign:Card Grid.Row="2" Margin="20,10,20,20" Padding="15" Background="#E0E0E0">
+            <DockPanel>
+                <TextBlock Text="TỔNG DOANH THU:" FontWeight="Bold" FontSize="18"/>
+                <TextBlock Text="{Binding SumRevenue, StringFormat={}{0:N0} VNĐ}" 
+                           DockPanel.Dock="Right" FontWeight="Bold" FontSize="20" Foreground="#D32F2F"/>
+            </DockPanel>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

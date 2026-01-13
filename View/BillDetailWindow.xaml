@@ -1,0 +1,77 @@
+﻿<Window x:Class="QuanLyNhaHang.View.BillDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Chi tiết hóa đơn" Height="500" Width="400"
+        WindowStartupLocation="CenterScreen" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent"
+        Name="detailWindow">
+
+    <materialDesign:Card UniformCornerRadius="10" Margin="10" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Background="#673AB7">
+                <TextBlock Text="CHI TIẾT HÓA ĐƠN" Foreground="White" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           FontWeight="Bold" FontSize="16"/>
+                <Button Command="{Binding CloseCommand}" CommandParameter="{Binding ElementName=detailWindow}"
+                        HorizontalAlignment="Right" Style="{StaticResource MaterialDesignIconForegroundButton}" Foreground="White">
+                    <materialDesign:PackIcon Kind="Close"/>
+                </Button>
+            </Grid>
+
+            <!-- Thông tin chung -->
+            <StackPanel Grid.Row="1" Margin="15">
+                <DockPanel>
+                    <TextBlock Text="Mã HĐ:" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding BillId}" DockPanel.Dock="Right"/>
+                </DockPanel>
+                <DockPanel Margin="0,5">
+                    <TextBlock Text="Bàn:" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TableName}" DockPanel.Dock="Right"/>
+                </DockPanel>
+                <DockPanel>
+                    <TextBlock Text="Ngày:" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding DateCheckOut}" DockPanel.Dock="Right"/>
+                </DockPanel>
+                <Separator Margin="0,10"/>
+            </StackPanel>
+
+            <!-- Danh sách món -->
+            <ListView Grid.Row="2" ItemsSource="{Binding ListBillInfo}" Margin="10,0">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Món" DisplayMemberBinding="{Binding FoodName}" Width="150"/>
+                        <GridViewColumn Header="SL" DisplayMemberBinding="{Binding Count}" Width="50"/>
+                        <GridViewColumn Header="Thành tiền" DisplayMemberBinding="{Binding TotalPrice, StringFormat={}{0:N0}}" Width="100"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <!-- Tổng kết -->
+            <StackPanel Grid.Row="3" Margin="15" Background="#F5F5F5">
+                <DockPanel Margin="5">
+                    <TextBlock Text="Tổng cộng:"/>
+                    <TextBlock Text="{Binding TotalPrice, StringFormat={}{0:N0}}" DockPanel.Dock="Right"/>
+                </DockPanel>
+                <DockPanel Margin="5">
+                    <TextBlock Text="Giảm giá:"/>
+                    <TextBlock Text="{Binding Discount, StringFormat={}{0:N0}}" DockPanel.Dock="Right" Foreground="Green"/>
+                </DockPanel>
+                <Separator/>
+                <DockPanel Margin="5">
+                    <TextBlock Text="THANH TOÁN:" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="{Binding FinalPrice, StringFormat={}{0:N0} VNĐ}" DockPanel.Dock="Right" 
+                               FontWeight="Bold" FontSize="16" Foreground="Red"/>
+                </DockPanel>
+            </StackPanel>
+        </Grid>
+    </materialDesign:Card>
+</Window>
