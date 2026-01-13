@@ -1,6 +1,12 @@
 #  Hệ Thống Quản Lý Nhà Hàng (Restaurant Management System)
 
 > Bài tập lớn môn Lập trình Hướng đối tượng (OOP)
+>## 1. Thông tin nhóm sinh viên
+
+| STT | Họ và tên | Mã sinh viên |
+|:---:|---|:---:|
+| 1 | **Trần Đoàn Hoàng Anh** | 20237294 |
+| 2 | **Trần Công Dương** | 20237321 |
 > 
 > **Công nghệ:** C# WPF - MVVM - SQL Server
 
