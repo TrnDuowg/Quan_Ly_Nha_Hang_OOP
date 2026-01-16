@@ -22,7 +22,7 @@
 
             <!-- 3. KHAI BÁO CONVERTER CHO MẬT KHẨU (Quan trọng cho AccountView) -->
             <utils:PasswordMultiConverter x:Key="PasswordMultiConverter"/>
-
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

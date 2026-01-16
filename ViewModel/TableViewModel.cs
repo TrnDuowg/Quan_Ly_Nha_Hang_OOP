@@ -1,12 +1,12 @@
 ﻿using QuanLyNhaHang.DTO;
 using QuanLyNhaHang.Model;
 using QuanLyNhaHang.View;
-using QuanLyNhaHang.Utilities; // Thêm namespace này để dùng BillPrinter
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading; // <--- Cần thêm thư viện này
 
 namespace QuanLyNhaHang.ViewModel
 {
@@ -62,6 +62,8 @@ namespace QuanLyNhaHang.ViewModel
             get => _SelectedTable;
             set
             {
+                // Khi gán giá trị mới, nếu nó khác null thì mới load bill
+                // Điều này tránh việc load lỗi khi đang refresh
                 _SelectedTable = value;
                 OnPropertyChanged();
                 if (_SelectedTable != null) LoadBill(_SelectedTable.Id);
@@ -101,19 +103,59 @@ namespace QuanLyNhaHang.ViewModel
             set { _TotalPrice = value; OnPropertyChanged(); }
         }
 
+        // --- TIMER ĐỂ TỰ ĐỘNG CẬP NHẬT ---
+        private DispatcherTimer _timer;
+
         // --- 3. COMMAND ---
         public ICommand AddFoodCommand { get; set; }
         public ICommand PayCommand { get; set; }
         public ICommand ApplyDiscountCommand { get; set; }
         public ICommand RemoveFoodCommand { get; set; }
         public ICommand BookTableCommand { get; set; }
-        public ICommand CheckInTableCommand { get; set; } // <--- MỚI THÊM
+        public ICommand CheckInTableCommand { get; set; }
         public ICommand SwitchTableCommand { get; set; }
 
         public TableViewModel()
         {
             LoadTable();
             LoadCategory();
+
+            // --- CẤU HÌNH TIMER (AUTO REFRESH) ---
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(3); // Cứ 3 giây cập nhật 1 lần
+            _timer.Tick += (sender, e) =>
+            {
+                // Logic: Lưu lại ID bàn đang chọn -> Load lại -> Gán lại bàn đang chọn
+                int selectedId = -1;
+                if (SelectedTable != null)
+                {
+                    selectedId = SelectedTable.Id;
+                }
+
+                LoadTable(); // Cập nhật trạng thái các bàn (Xanh/Đỏ/Cam)
+
+                if (selectedId != -1)
+                {
+                    // Tìm lại bàn cũ trong danh sách mới
+                    foreach (var t in ListTable)
+                    {
+                        if (t.Id == selectedId)
+                        {
+                            SelectedTable = t; // Gán lại để không bị mất focus
+
+                            // Nếu bàn đang có người thì cập nhật luôn danh sách món (để xem khách có gọi thêm gì không)
+                            if (t.Status == "Có người")
+                            {
+                                // LoadBill(t.Id); // Hàm setter của SelectedTable đã gọi LoadBill rồi, không cần gọi lại ở đây tránh lặp
+                            }
+                            break;
+                        }
+                    }
+                }
+            };
+            _timer.Start(); // Bắt đầu chạy Timer
+            // -------------------------------------
+
 
             // --- XỬ LÝ NÚT THÊM MÓN ---
             AddFoodCommand = new RelayCommand<object>((p) =>
@@ -157,14 +199,15 @@ namespace QuanLyNhaHang.ViewModel
                         }
                     }
 
+                    // Refresh thủ công ngay lập tức để người dùng không phải đợi Timer
                     int tableId = SelectedTable.Id;
                     LoadTable();
                     foreach (var t in ListTable) { if (t.Id == tableId) { SelectedTable = t; break; } }
-                    LoadBill(tableId);
+                    // LoadBill sẽ tự chạy do SelectedTable thay đổi
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lỗi: " + ex.Message + "\n" + ex.StackTrace);
+                    MessageBox.Show("Lỗi: " + ex.Message);
                 }
             });
 
@@ -227,14 +270,13 @@ namespace QuanLyNhaHang.ViewModel
                         DataProvider.Ins.ExecuteNonQuery(queryUpdateBill);
                         DataProvider.Ins.ExecuteNonQuery($"UPDATE DiningTable SET Status = N'Trống' WHERE Id = {SelectedTable.Id}");
 
-                        // In hóa đơn
-                       
                         MessageBox.Show("Thanh toán thành công!");
 
                         int tableId = SelectedTable.Id;
                         LoadTable();
-                        LoadBill(tableId);
 
+                        // Clear dữ liệu hiển thị
+                        ListBillInfo.Clear();
                         TotalPrice = 0;
                         FinalTotalPrice = 0;
                         DiscountAmountMoney = 0;
@@ -281,12 +323,11 @@ namespace QuanLyNhaHang.ViewModel
                 LoadTable();
             });
 
-            // --- NHẬN BÀN (CHECK-IN) --- (Đã bổ sung)
+            // --- NHẬN BÀN (CHECK-IN) ---
             CheckInTableCommand = new RelayCommand<object>((p) =>
             {
                 var table = p as Table;
                 if (table == null) return false;
-                // So sánh chữ thường để tránh lỗi chính tả
                 return table.Status.Trim().ToLower() == "đặt trước";
             }, (p) =>
             {
@@ -295,11 +336,9 @@ namespace QuanLyNhaHang.ViewModel
                 {
                     try
                     {
-                        // 1. Đổi trạng thái bàn
                         DataProvider.Ins.ExecuteNonQuery($"UPDATE DiningTable SET Status = N'Có người' WHERE Id = {table.Id}");
-                        // 2. Hoàn thành đơn đặt
                         DataProvider.Ins.ExecuteNonQuery($"UPDATE Reservations SET Status = 'Completed' WHERE TableId = {table.Id} AND Status = N'Chờ xác nhận'");
-                        // 3. Tạo hóa đơn rỗng
+
                         int existingBill = (int)DataProvider.Ins.ExecuteScalar($"SELECT COUNT(*) FROM Bills WHERE TableId = {table.Id} AND Status = 0");
                         if (existingBill == 0)
                         {
@@ -307,8 +346,6 @@ namespace QuanLyNhaHang.ViewModel
                         }
 
                         LoadTable();
-
-                        // Tự động chọn bàn đó
                         foreach (var t in ListTable) { if (t.Id == table.Id) { SelectedTable = t; break; } }
                     }
                     catch (Exception ex) { MessageBox.Show("Lỗi check-in: " + ex.Message); }
@@ -336,13 +373,11 @@ namespace QuanLyNhaHang.ViewModel
                         DataProvider.Ins.ExecuteNonQuery($"UPDATE DiningTable SET Status = N'Có người' WHERE Id = {targetTable.Id}");
 
                         LoadTable();
-
                         if (SelectedTable != null && SelectedTable.Id == currentTable.Id)
                         {
                             ListBillInfo.Clear();
                             TotalPrice = 0;
                         }
-
                         MessageBox.Show($"Đã chuyển từ {currentTable.Name} sang {targetTable.Name} thành công!");
                     }
                     catch (Exception ex)
@@ -357,7 +392,10 @@ namespace QuanLyNhaHang.ViewModel
         // --- 4. CÁC HÀM HỖ TRỢ ---
         void LoadTable()
         {
-            ListTable = new ObservableCollection<Table>();
+            // Tối ưu: Nếu chưa khởi tạo thì new, nếu có rồi thì clear và add lại để tránh reset giao diện quá nhiều
+            if (ListTable == null) ListTable = new ObservableCollection<Table>();
+            else ListTable.Clear();
+
             DataTable data = DataProvider.Ins.ExecuteQuery("SELECT * FROM DiningTable");
             foreach (DataRow item in data.Rows) ListTable.Add(new Table(item));
         }
@@ -402,10 +440,22 @@ namespace QuanLyNhaHang.ViewModel
             }
 
             TotalPrice = total;
-            FinalTotalPrice = total;
-            DiscountAmountMoney = 0;
-            DiscountCode = "";
-            _SelectedPromotion = null;
+            // Tính lại giá cuối (nếu đang có mã giảm giá thì áp dụng luôn)
+            if (_SelectedPromotion != null)
+            {
+                if (_SelectedPromotion.DiscountType == "Percent")
+                    DiscountAmountMoney = TotalPrice * (_SelectedPromotion.DiscountValue / 100);
+                else
+                    DiscountAmountMoney = _SelectedPromotion.DiscountValue;
+
+                FinalTotalPrice = TotalPrice - DiscountAmountMoney;
+                if (FinalTotalPrice < 0) FinalTotalPrice = 0;
+            }
+            else
+            {
+                FinalTotalPrice = total;
+                DiscountAmountMoney = 0;
+            }
         }
     }
 }

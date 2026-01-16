@@ -20,6 +20,9 @@ namespace QuanLyNhaHang.ViewModel
         private string _DisplayName;
         public string DisplayName { get => _DisplayName; set { _DisplayName = value; OnPropertyChanged(); } }
 
+        private string _ImageLink;
+        public string ImageLink { get => _ImageLink; set { _ImageLink = value; OnPropertyChanged(); } }
+
         private decimal _Price;
         public decimal Price { get => _Price; set { _Price = value; OnPropertyChanged(); } }
 
@@ -39,6 +42,7 @@ namespace QuanLyNhaHang.ViewModel
                 {
                     DisplayName = SelectedFood.Name;
                     Price = SelectedFood.Price;
+                    ImageLink = SelectedFood.ImagePath;
                     // Logic tìm category tương ứng để gán vào combobox (bạn tự implement thêm vòng lặp tìm ID nếu cần)
                 }
             }
@@ -63,7 +67,8 @@ namespace QuanLyNhaHang.ViewModel
                 var check = DataProvider.Ins.ExecuteQuery($"SELECT * FROM Food WHERE Name = N'{DisplayName}'");
                 if (check.Rows.Count > 0) { MessageBox.Show("Món này đã tồn tại!"); return; }
 
-                string query = $"INSERT INTO Food (Name, CategoryId, Price) VALUES (N'{DisplayName}', {SelectedCategory.Id}, {Price})";
+                // Cập nhật câu lệnh INSERT (AddCommand)
+                string query = $"INSERT INTO Food (Name, CategoryId, Price, ImagePath) VALUES (N'{DisplayName}', {SelectedCategory.Id}, {Price}, N'{ImageLink}')";
                 DataProvider.Ins.ExecuteNonQuery(query);
                 MessageBox.Show("Thêm thành công!");
                 LoadListFood();
@@ -75,10 +80,29 @@ namespace QuanLyNhaHang.ViewModel
                 return SelectedFood != null && SelectedCategory != null;
             }, (p) =>
             {
-                string query = $"UPDATE Food SET Name = N'{DisplayName}', CategoryId = {SelectedCategory.Id}, Price = {Price} WHERE Id = {SelectedFood.Id}";
-                DataProvider.Ins.ExecuteNonQuery(query);
-                MessageBox.Show("Sửa thành công!");
-                LoadListFood();
+                try
+                {
+                    // 1. Xử lý link ảnh an toàn (tránh null)
+                    string safeImageLink = string.IsNullOrEmpty(ImageLink) ? "" : ImageLink;
+
+                    // 2. Câu lệnh Update
+                    // Lưu ý: Nếu tên món hoặc link ảnh có dấu nháy đơn ', SQL sẽ lỗi.
+                    // Cách tốt nhất là dùng Parameter, nhưng ở đây ta dùng Replace tạm thời để fix nhanh:
+                    string safeName = DisplayName.Replace("'", "''");
+                    string safeLink = safeImageLink.Replace("'", "''");
+
+                    string query = $"UPDATE Food SET Name = N'{safeName}', CategoryId = {SelectedCategory.Id}, Price = {Price}, ImagePath = N'{safeLink}' WHERE Id = {SelectedFood.Id}";
+
+                    DataProvider.Ins.ExecuteNonQuery(query);
+
+                    MessageBox.Show("Cập nhật thành công!");
+                    LoadListFood();
+                }
+                catch (Exception ex)
+                {
+                    // 3. Hiện lỗi lên thay vì tắt App
+                    MessageBox.Show("Lỗi cập nhật: " + ex.Message + "\n\n(Kiểm tra lại độ dài link ảnh trong SQL có phải là NVARCHAR(MAX) chưa?)");
+                }
             });
 
             // XÓA

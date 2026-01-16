@@ -9,12 +9,17 @@ namespace QuanLyNhaHang.Model
         public int CategoryId { get; set; }
         public decimal Price { get; set; }
 
+        public string ImagePath { get; set; }
+
         public Food(DataRow row)
         {
             this.Id = (int)row["Id"];
             this.Name = row["Name"].ToString();
             this.CategoryId = (int)row["CategoryId"];
             this.Price = (decimal)row["Price"];
+            this.ImagePath = row.Table.Columns.Contains("ImagePath") && row["ImagePath"] != DBNull.Value
+                        ? row["ImagePath"].ToString()
+                        : " ";
         }
     }
 }

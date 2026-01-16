@@ -9,16 +9,13 @@
     <Grid Background="White">
 
         <!-- ========================================================= -->
-        <!-- MÀN HÌNH 1: CHỌN BÀN (Hiện khi IsTableSelected = False) -->
+        <!-- MÀN HÌNH 1: CHỌN BÀN -->
         <!-- ========================================================= -->
         <Grid>
-            <!-- Xử lý Ẩn/Hiện bằng Style Trigger (Không cần Converter) -->
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Visible"/>
-                    <!-- Mặc định là HIỆN -->
                     <Style.Triggers>
-                        <!-- Khi đã chọn bàn (True) thì ẨN đi -->
                         <DataTrigger Binding="{Binding IsTableSelected}" Value="True">
                             <Setter Property="Visibility" Value="Collapsed"/>
                         </DataTrigger>
@@ -45,26 +42,17 @@
                                         CommandParameter="{Binding}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedLightButton}">
-                                            <!-- Mặc định: Màu Xanh (Trống) -->
                                             <Setter Property="Background" Value="#4CAF50"/>
                                             <Setter Property="BorderBrush" Value="#4CAF50"/>
-
                                             <Style.Triggers>
-                                                <!-- 1. Nếu bàn Có người -> Màu Đỏ -->
                                                 <DataTrigger Binding="{Binding Status}" Value="Có người">
                                                     <Setter Property="Background" Value="#E57373"/>
                                                     <Setter Property="BorderBrush" Value="#E57373"/>
-                                                    <!-- Tùy chọn: Nếu có người rồi thì khách có được chọn vào ngồi ghép không? 
-                     Nếu không thì thêm dòng này: <Setter Property="IsEnabled" Value="False"/> -->
                                                 </DataTrigger>
-
-                                                <!-- 2. THÊM ĐOẠN NÀY: Nếu bàn Đặt trước -> Màu Cam -->
                                                 <DataTrigger Binding="{Binding Status}" Value="Đặt trước">
                                                     <Setter Property="Background" Value="#FFB74D"/>
                                                     <Setter Property="BorderBrush" Value="#FFB74D"/>
-                                                    <!-- Bàn đã đặt thì khách vãng lai không được chọn -->
                                                     <Setter Property="IsEnabled" Value="False"/>
-                                                    <Setter Property="ToolTip" Value="Bàn này đã được đặt trước"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -83,18 +71,14 @@
             </StackPanel>
         </Grid>
 
-
         <!-- ========================================================= -->
-        <!-- MÀN HÌNH 2: MENU MÓN ĂN (Hiện khi IsTableSelected = True) -->
+        <!-- MÀN HÌNH 2: MENU MÓN ĂN -->
         <!-- ========================================================= -->
         <Grid>
-            <!-- Xử lý Ẩn/Hiện -->
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed"/>
-                    <!-- Mặc định là ẨN -->
                     <Style.Triggers>
-                        <!-- Khi đã chọn bàn (True) thì HIỆN lên -->
                         <DataTrigger Binding="{Binding IsTableSelected}" Value="True">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
@@ -116,7 +100,15 @@
                                    VerticalAlignment="Center" Margin="15,0,0,0"/>
                     </StackPanel>
 
-                    <!-- Hiển thị bàn đang ngồi -->
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="10,0">
+                        <materialDesign:PackIcon Kind="Phone" VerticalAlignment="Center" Foreground="White"/>
+                        <TextBox Width="120" materialDesign:HintAssist.Hint="SĐT Tích điểm" 
+                                 Foreground="White" CaretBrush="White"
+                                 Text="{Binding CustomerPhone, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Foreground="White"
+                                 Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+
                     <materialDesign:Chip DockPanel.Dock="Right" Background="White" FontSize="16" FontWeight="Bold">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="TableFurniture"/>
@@ -137,30 +129,43 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
+                            <!-- Thẻ Món Ăn -->
                             <materialDesign:Card Width="200"
-                                 Margin="10"
-                                 UniformCornerRadius="10"
-                                 materialDesign:ElevationAssist.Elevation="Dp4">
+                     Margin="10"
+                     UniformCornerRadius="10"
+                     materialDesign:ElevationAssist.Elevation="Dp4">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="140"/>
+                                        <!-- Khu vực Ảnh -->
                                         <RowDefinition Height="Auto"/>
+                                        <!-- Tên -->
                                         <RowDefinition Height="Auto"/>
+                                        <!-- Giá & Nút -->
                                     </Grid.RowDefinitions>
 
-                                    <Border Grid.Row="0" Background="#F5F5F5">
-                                        <materialDesign:PackIcon Kind="Food" Width="80" Height="80" 
-                                                                 HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                    <!-- Ảnh Món Ăn -->
+                                    <Border Grid.Row="0" Background="#F5F5F5" ClipToBounds="True" CornerRadius="10,10,0,0">
+                                        <Grid>
+                                            <!-- Icon dự phòng -->
+                                            <materialDesign:PackIcon Kind="Food" Width="60" Height="60" 
+                                                                     HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                                                     Foreground="LightGray"/>
+
+                                            <!-- Ảnh thật (nếu có link) -->
+                                            <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
+                                        </Grid>
                                     </Border>
 
+                                    <!-- Tên Món -->
                                     <TextBlock Grid.Row="1" Text="{Binding Name}" FontWeight="Bold" 
-                                               FontSize="18" Margin="15,10" TextWrapping="Wrap"/>
+                                               FontSize="18" Margin="10,10,10,5" TextWrapping="Wrap" MaxHeight="50" TextTrimming="CharacterEllipsis"/>
 
-                                    <DockPanel Grid.Row="2" Margin="15">
+                                    <!-- Giá & Nút -->
+                                    <DockPanel Grid.Row="2" Margin="10,0,10,15">
                                         <TextBlock Text="{Binding Price, StringFormat={}{0:N0} đ}" 
-                                                   Foreground="#D32F2F" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                                                   Foreground="#D32F2F" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
 
-                                        <!-- Nút gọi món -->
                                         <Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
                                                 Background="#FF9800" BorderBrush="#FF9800"
                                                 ToolTip="Thêm vào giỏ" Width="40" Height="40"

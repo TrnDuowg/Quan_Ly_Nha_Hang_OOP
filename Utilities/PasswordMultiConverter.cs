@@ -2,13 +2,13 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace QuanLyNhaHang.Utilities
+namespace QuanLyNhaHang.Utilities // <--- Namespace này phải khớp với xmlns:utils trong App.xaml
 {
     public class PasswordMultiConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Trả về mảng các PasswordBox để ViewModel xử lý
+            // Trả về mảng các object (chính là các PasswordBox) để ViewModel xử lý
             return values.Clone();
         }
 

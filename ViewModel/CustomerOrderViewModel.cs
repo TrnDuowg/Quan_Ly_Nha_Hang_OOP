@@ -13,11 +13,12 @@ namespace QuanLyNhaHang.ViewModel
         private ObservableCollection<Food> _ListFood;
         public ObservableCollection<Food> ListFood { get => _ListFood; set { _ListFood = value; OnPropertyChanged(); } }
 
-        // Danh sách bàn để khách chọn lúc mới vào
         private ObservableCollection<Table> _ListTable;
         public ObservableCollection<Table> ListTable { get => _ListTable; set { _ListTable = value; OnPropertyChanged(); } }
 
-        // Bàn khách đang ngồi
+        private string _CustomerPhone;
+        public string CustomerPhone { get => _CustomerPhone; set { _CustomerPhone = value; OnPropertyChanged(); } }
+
         private Table _CurrentTable;
         public Table CurrentTable
         {
@@ -26,28 +27,36 @@ namespace QuanLyNhaHang.ViewModel
             {
                 _CurrentTable = value;
                 OnPropertyChanged();
-                // Khi chọn bàn xong -> Ẩn màn hình chọn bàn, hiện Menu
                 IsTableSelected = (_CurrentTable != null);
             }
         }
 
-        // Biến điều khiển giao diện (True: Hiện Menu, False: Hiện chọn bàn)
         private bool _IsTableSelected;
         public bool IsTableSelected { get => _IsTableSelected; set { _IsTableSelected = value; OnPropertyChanged(); } }
 
-        // 2. Lệnh gọi món
+        // 2. Lệnh
         public ICommand OrderCommand { get; set; }
         public ICommand SelectTableCommand { get; set; }
 
         public CustomerOrderViewModel()
         {
-            LoadMenu();
-            LoadTables();
-            IsTableSelected = false; // Mặc định phải chọn bàn trước
+            // --- QUAN TRỌNG: Bọc try-catch để không bị sập app nếu lỗi DB ---
+            try
+            {
+                LoadMenu();
+                LoadTables();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu Khách hàng: " + ex.Message);
+            }
+            // ---------------------------------------------------------------
 
+            IsTableSelected = false;
+
+            // Lệnh CHỌN BÀN
             SelectTableCommand = new RelayCommand<Table>((t) =>
             {
-                // Điều kiện để nút ấn được: Bàn khác null VÀ KHÔNG PHẢI là bàn đặt trước
                 return t != null && t.Status != "Đặt trước";
             }, (t) =>
             {
@@ -56,20 +65,19 @@ namespace QuanLyNhaHang.ViewModel
                     MessageBox.Show("Bàn này đã được đặt trước, vui lòng chọn bàn khác!");
                     return;
                 }
-
                 CurrentTable = t;
                 IsTableSelected = true;
             });
 
-            // Lệnh GỌI MÓN (Khi khách bấm nút +)
+            // Lệnh GỌI MÓN
             OrderCommand = new RelayCommand<Food>((food) =>
             {
-                return CurrentTable != null; // Phải có bàn mới được gọi
+                return CurrentTable != null;
             }, (food) =>
             {
                 try
                 {
-                    // 1. Kiểm tra bàn này đã có hóa đơn chưa
+                    // 1. Kiểm tra hóa đơn
                     string queryBill = $"SELECT * FROM Bills WHERE TableId = {CurrentTable.Id} AND Status = 0";
                     DataTable dataBill = DataProvider.Ins.ExecuteQuery(queryBill);
 
@@ -82,14 +90,30 @@ namespace QuanLyNhaHang.ViewModel
                     {
                         // Tạo hóa đơn mới
                         DataProvider.Ins.ExecuteNonQuery($"INSERT INTO Bills (DateCheckIn, DateCheckOut, TableId, Status) VALUES (GETDATE(), NULL, {CurrentTable.Id}, 0)");
-                        idBill = (int)DataProvider.Ins.ExecuteScalar("SELECT MAX(Id) FROM Bills");
 
-                        // Cập nhật bàn thành Có người
+                        // Lấy ID an toàn
+                        object result = DataProvider.Ins.ExecuteScalar("SELECT MAX(Id) FROM Bills");
+                        idBill = (result != null && result != DBNull.Value) ? Convert.ToInt32(result) : 1;
+
+                        // Cập nhật bàn
                         DataProvider.Ins.ExecuteNonQuery($"UPDATE DiningTable SET Status = N'Có người' WHERE Id = {CurrentTable.Id}");
                     }
 
-                    // 2. Thêm món vào BillInfo
-                    // Kiểm tra xem món đó đã có chưa để cộng dồn
+                    // 2. Tích điểm (Nếu có nhập SĐT)
+                    if (!string.IsNullOrEmpty(CustomerPhone))
+                    {
+                        string queryFindUser = $"SELECT Id FROM Users WHERE PhoneNumber = '{CustomerPhone}' AND UserType = 'Customer'";
+                        object resultId = DataProvider.Ins.ExecuteScalar(queryFindUser);
+
+                        if (resultId != null)
+                        {
+                            int userId = Convert.ToInt32(resultId);
+                            // Cộng điểm vào bảng Customers (Lưu ý bảng Customers liên kết qua UserId)
+                            DataProvider.Ins.ExecuteNonQuery($"UPDATE Customers SET Points = Points + 10 WHERE UserId = {userId}");
+                        }
+                    }
+
+                    // 3. Thêm món vào BillInfo (Đã bỏ cột Status)
                     string checkFood = $"SELECT * FROM BillInfos WHERE BillId = {idBill} AND FoodId = {food.Id}";
                     if (DataProvider.Ins.ExecuteQuery(checkFood).Rows.Count > 0)
                     {
@@ -119,7 +143,6 @@ namespace QuanLyNhaHang.ViewModel
         void LoadTables()
         {
             ListTable = new ObservableCollection<Table>();
-            // Khách chỉ được chọn bàn Trống hoặc bàn đang Có người (nếu muốn gọi thêm)
             DataTable data = DataProvider.Ins.ExecuteQuery("SELECT * FROM DiningTable");
             foreach (DataRow item in data.Rows) ListTable.Add(new Table(item));
         }

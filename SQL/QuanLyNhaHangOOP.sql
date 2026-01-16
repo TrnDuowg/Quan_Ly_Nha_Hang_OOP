@@ -55,7 +55,7 @@ CREATE TABLE Food (
     Name NVARCHAR(100) NOT NULL,
     CategoryId INT NOT NULL,
     Price DECIMAL(18, 0) NOT NULL DEFAULT 0,
-    ImagePatch NVARCHAR(MAX), -- Đường dẫn ảnh món ăn
+    ImagePath NVARCHAR(MAX), -- Đường dẫn ảnh món ăn
     Status NVARCHAR(50) DEFAULT N'Đang bán', -- Đang bán / Ngừng bán
     FOREIGN KEY (CategoryId) REFERENCES FoodCategory(Id)
 );
@@ -188,3 +188,4 @@ VALUES (N'Khách Hàng', 'guest', '1', 'Customer');
 
 INSERT INTO Users (DisplayName, UserName, PasswordHash, UserType, PhoneNumber) 
 VALUES (N'Khách hàng', 'guest', '1', 'Customer', '0000000000');
+
