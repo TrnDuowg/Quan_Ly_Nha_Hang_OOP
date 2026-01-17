@@ -60,3 +60,90 @@ Dự án áp dụng các kiến thức cốt lõi của môn học:
 3.  **Command Pattern:** Sử dụng `RelayCommand` để xử lý sự kiện thay vì Event Handler truyền thống.
 4.  **Observer Pattern:** Sử dụng `INotifyPropertyChanged` để cập nhật giao diện thời gian thực.
 5.  **Tính Đóng gói, Kế thừa, Đa hình:** Thể hiện qua cấu trúc các lớp `User` (Cha) -> `Employee`, `Customer` (Con).
+
+
+# 🛠️ Hướng dẫn Cài đặt và Vận hành (Installation Guide)
+
+Tài liệu này hướng dẫn chi tiết cách cài đặt môi trường, cơ sở dữ liệu và cấu hình để chạy phần mềm **Quản lý Nhà hàng**.
+
+---
+
+## 1. Yêu cầu hệ thống (Prerequisites)
+Trước khi cài đặt, máy tính cần đáp ứng:
+* **Hệ điều hành:** Windows 10 hoặc Windows 11 (64-bit).
+* **Cơ sở dữ liệu:** Microsoft SQL Server (2012 trở lên).
+* **Môi trường chạy:** [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (Nếu chạy file exe) hoặc **Visual Studio 2022** (Nếu chạy source code).
+
+---
+
+## 2. Quy trình Cài đặt (Step-by-Step)
+
+### Bước 1: Khởi tạo Cơ sở dữ liệu (Database)
+ *Phần mềm sẽ báo lỗi và tự tắt nếu không kết nối được Database.*
+
+1.  Tìm file script SQL: **`Database_Setup.sql`** (nằm trong thư mục gốc của bộ cài hoặc source code).
+2.  Mở **SQL Server Management Studio (SSMS)** và kết nối vào Server của bạn.
+3.  Kéo file `Database_Setup.sql` vào giao diện SSMS (hoặc chọn *File > Open*).
+4.  Nhấn nút **Execute (F5)** để chạy script.
+    * **Kết quả:** Database `QuanLyNhaHangOOP` được tạo cùng với dữ liệu mẫu.
+
+### Bước 2: Cài đặt Ứng dụng
+* **Cách 1 (Dùng bộ cài):** Truy cập vào thư mục **[Cài chương trình](./Cài%20chương%20trình)**, chạy file `setup.exe` và nhấn Next liên tục để cài đặt.
+* **Cách 2 (Dùng Source Code):** Mở file `QuanLyNhaHang.sln` bằng Visual Studio -> Nhấn **F5** để Build và Run.
+
+### Bước 3: Cấu hình Kết nối (Quan trọng)
+Do tên Server SQL của mỗi máy khác nhau, bạn cần cập nhật file cấu hình.
+
+1.  Vào thư mục đã cài đặt phần mềm (Thường là: `C:\Program Files (x86)\Default Company Name\QuanLyNhaHang_Setup`).
+2.  Tìm file có đuôi `.config` (Ví dụ: `QuanLyNhaHang.dll.config` hoặc `App.config`).
+3.  Mở file bằng **Notepad**.
+4.  Tìm đoạn code `connectionStrings` và sửa như sau:
+
+    ```xml
+    <connectionStrings>
+        <add name="QuanLyNhaHang" 
+             connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=QuanLyNhaHangOOP;Integrated Security=True" 
+             providerName="System.Data.SqlClient"/>
+    </connectionStrings>
+    ```
+
+5.  Sửa phần `Data Source=...` thành tên Server SQL của bạn.
+    * Ví dụ: `Data Source=(local)` hoặc `Data Source=TEN_MAY_TINH`.
+6.  Lưu file lại (Ctrl + S).
+
+---
+
+## 3. Hướng dẫn Vận hành (User Manual)
+
+###  Tài khoản Đăng nhập (Mặc định)
+Mật khẩu chung cho tất cả tài khoản là: **1**
+
+| Vai trò | Username | Chức năng |
+| :--- | :--- | :--- |
+| **Quản trị viên** | `admin` | Toàn quyền hệ thống (Quản lý Nhân viên, Thực đơn, Khuyến mãi, Thống kê, Bán hàng) |
+| **Nhân viên** | `staff` | Chỉ truy cập chức năng Bán hàng (Đặt bàn, Gọi món, Thanh toán) |
+| **Khách hàng** | `guest` | Chế độ Kiosk tại bàn (Chỉ xem Menu và tự Gọi món) |
+
+###  Quy trình Bán hàng chuẩn (Workflow)
+
+* **Đặt bàn:** Chuột phải vào bàn Trống (Xanh) -> Chọn **Đặt bàn**.
+* **Nhận khách:** Chuột phải vào bàn Đặt trước (Cam) -> Chọn **Khách nhận bàn**.
+* **Gọi món:**
+    1.  Click chuột trái vào bàn Có người (Đỏ).
+    2.  Chọn món và số lượng -> Bấm **Thêm món**.
+* **Thanh toán:**
+    1.  Chọn bàn cần thanh toán.
+    2.  Nhập mã khuyến mãi (nếu có, VD: `KM10`, `TET50K`).
+    3.  Bấm **Thanh toán**. Hóa đơn sẽ tự động xuất ra file Text.
+
+---
+
+##  Xử lý sự cố thường gặp
+
+### Lỗi Crash ngay khi mở App:
+* **Nguyên nhân:** Chưa cấu hình đúng chuỗi kết nối SQL.
+* **Khắc phục:** Xem lại **Bước 3** phần Cài đặt.
+
+### Lỗi không hiện Menu quản lý:
+* **Nguyên nhân:** Đang đăng nhập bằng tài khoản Nhân viên (staff).
+* **Khắc phục:** Đăng xuất và đăng nhập lại bằng `admin`.
