@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36717.8 d17.14
+VisualStudioVersion = 17.14.36717.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyNhaHang", "QuanLyNhaHang.csproj", "{8DB64842-6C9B-43C2-BC10-2EF414F79249}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "QuanLyNhaHang_Setup", "..\QuanLyNhaHang_Setup\QuanLyNhaHang_Setup.vdproj", "{6EE27CC1-9DE1-8937-D158-A4BA799F8EC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,9 @@ Global
 		{8DB64842-6C9B-43C2-BC10-2EF414F79249}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DB64842-6C9B-43C2-BC10-2EF414F79249}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DB64842-6C9B-43C2-BC10-2EF414F79249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EE27CC1-9DE1-8937-D158-A4BA799F8EC0}.Debug|Any CPU.ActiveCfg = Release
+		{6EE27CC1-9DE1-8937-D158-A4BA799F8EC0}.Debug|Any CPU.Build.0 = Release
+		{6EE27CC1-9DE1-8937-D158-A4BA799F8EC0}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
