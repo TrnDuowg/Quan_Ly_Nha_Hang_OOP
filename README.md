@@ -134,7 +134,7 @@ Mật khẩu chung cho tất cả tài khoản là: **1**
 * **Thanh toán:**
     1.  Chọn bàn cần thanh toán.
     2.  Nhập mã khuyến mãi (nếu có, VD: `KM10`, `TET50K`).
-    3.  Bấm **Thanh toán**. Hóa đơn sẽ tự động xuất ra file Text.
+    3.  Bấm **Thanh toán**.
 
 ---
 
