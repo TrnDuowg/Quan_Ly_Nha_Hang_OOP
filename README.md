@@ -4,12 +4,6 @@
 > 
 > **Công nghệ:** C# WPF - MVVM - SQL Server
 
-# Thông tin nhóm sinh viên
-
-| STT | Họ và tên | Mã sinh viên |
-|:---:|---|:---:|
-| 1 | **Trần Đoàn Hoàng Anh** | 20237297 |
-| 2 | **Trần Công Dương** | 20237321 |
 
 ##  Giới thiệu
 Phần mềm quản lý vận hành nhà hàng toàn diện, hỗ trợ quy trình từ đặt bàn, gọi món, thanh toán đến quản lý nhân sự và báo cáo doanh thu. Dự án được xây dựng dựa trên kiến trúc **MVVM (Model-View-ViewModel)** giúp tách biệt giao diện và xử lý logic, đồng thời áp dụng triệt để các nguyên lý **OOP** và các **Mẫu thiết kế (Design Patterns)**.
